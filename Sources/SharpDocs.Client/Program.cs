@@ -1,5 +1,4 @@
-﻿using SharpDocs.Generators;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +12,7 @@ namespace SharpDocs.Client
         {
             const string folder = @"..\..\..\SharpDocs.Samples\bin\Debug\";
             const string name = @"SharpDocs.Samples";
-            var md = SharpDocs.Generate<Html>($"{folder}\\{name}.dll", @"<html><body>{{{{DOC}}}}</body></body>");
+            var md = new SharpDocs().Generate($"{folder}\\{name}.dll", @"<html><body><h1>{{ name }}</h1></body></body>",".html");
         }
     }
 }

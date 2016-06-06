@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommonMark, Version=0.1.0.0, Culture=neutral, PublicKeyToken=001ef8810438905d, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommonMark.NET.0.12.0\lib\net45\CommonMark.dll</HintPath>
+    <Reference Include="Handlebars, Version=1.0.0.0, Culture=neutral, PublicKeyToken=22225d0bf33cd661, processorArchitecture=MSIL">
+      <HintPath>..\packages\Handlebars.Net.1.7.1\lib\Handlebars.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -44,9 +44,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Generators\Html.cs" />
-    <Compile Include="Generators\IGenerator.cs" />
-    <Compile Include="Generators\Markdown.cs" />
+    <Compile Include="Documentation\Argument.cs" />
+    <Compile Include="Documentation\Assembly.cs" />
+    <Compile Include="Documentation\Event.cs" />
+    <Compile Include="Documentation\Method.cs" />
+    <Compile Include="Documentation\Node.cs" />
+    <Compile Include="Documentation\Property.cs" />
+    <Compile Include="Documentation\Type.cs" />
+    <Compile Include="Documentation\TypedNode.cs" />
+    <Compile Include="Documentation\TypeParameter.cs" />
     <Compile Include="SharpDocs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
