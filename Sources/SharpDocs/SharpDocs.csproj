@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Documentation\Argument.cs" />
+    <Compile Include="Documentation\Parameter.cs" />
     <Compile Include="Documentation\Assembly.cs" />
     <Compile Include="Documentation\Event.cs" />
     <Compile Include="Documentation\Method.cs" />
@@ -58,6 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\Default.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

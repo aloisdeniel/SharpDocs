@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 namespace SharpDocs.Documentation
 {
     public class Method : TypedNode
-    { 
+    {
+        public IEnumerable<TypeParameter> Generic { get; set; }
+
         public IEnumerable<Parameter> Arguments { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace SharpDocs.Client
         {
             const string folder = @"..\..\..\SharpDocs.Samples\bin\Debug\";
             const string name = @"SharpDocs.Samples";
-            var md = new SharpDocs().Generate($"{folder}\\{name}.dll", @"<html><body><h1>{{ name }}</h1></body></body>",".html");
+            var md = new SharpDocs().Generate($"{folder}\\{name}.dll");
         }
     }
 }

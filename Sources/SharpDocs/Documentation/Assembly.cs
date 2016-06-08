@@ -9,5 +9,7 @@ namespace SharpDocs.Documentation
     public class Assembly : Node
     {
         public IEnumerable<Type> Types { get; set; }
+
+        public IEnumerable<Type> Attributes { get; set; }
     }
 }

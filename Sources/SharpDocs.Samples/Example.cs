@@ -59,10 +59,19 @@ namespace SharpDocs.Samples
         /// <summary>
         /// Example of a generic function.
         /// </summary>
-        /// <typeparam name="T">Type parameter</typeparam>
-        public void TestGeneric<T>()
+        /// <typeparam name="T">Parameter type</typeparam>
+        /// <param name="t">Generic arg</param>
+        public void TestGeneric<T>(T t) where T : IComparable
         {
 
+        }
+
+        /// <summary>
+        /// Example of a function with no parameter.
+        /// </summary>
+        public virtual void InAndOutAndVirtualAndOptional(out int  outP, int inP = 6)
+        {
+            outP = 5;
         }
     }
 }

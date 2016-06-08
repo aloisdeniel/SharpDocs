@@ -17,34 +17,35 @@ namespace SharpDocs
 
         private XElement FindDoc(XDocument xdoc, string fullname)
         {
-            return xdoc.Descendants("member").Where((n) => n.Attribute("name")?.Value == fullname).FirstOrDefault();
+            return xdoc.Descendants("member").Where((n) => n.Attribute("name")?.Value == fullname).ToList().FirstOrDefault();
         }
 
         private string FindSummary(XDocument xdoc, string fullname)
         {
             var doc = FindDoc(xdoc, fullname);
-            return doc?.Descendants("summary").FirstOrDefault()?.Value.Trim();
+            return doc?.Descendants("summary").ToList().FirstOrDefault()?.Value.Trim();
         }
         private string FindParam(XDocument xdoc, string fullname, string paramName, string paramType)
         {
             var doc = FindDoc(xdoc, fullname);
-            return doc?.Descendants("param").Where((n) => n.Attribute("name")?.Value == paramName).FirstOrDefault()?.Value.Trim();
+            return doc?.Descendants("param").Where((n) => n.Attribute("name")?.Value == paramName).ToList().FirstOrDefault()?.Value.Trim();
         }
 
         private Assembly CreateNode(XDocument doc, System.Reflection.Assembly assembly)
         {
+            var descriptionAttribute = assembly
+                                      .GetCustomAttributes(typeof(System.Reflection.AssemblyDescriptionAttribute), false)
+                                      .OfType<System.Reflection.AssemblyDescriptionAttribute>()
+                                      .FirstOrDefault();
+
             var node = new Assembly()
             {
-                Name = assembly.GetName().Name
+                Name = assembly.GetName().Name,
+                Description = descriptionAttribute?.Description,
+                Types = assembly.ExportedTypes.Where((t) => !typeof(System.Attribute).IsAssignableFrom(t)).Select((t) => CreateNode(doc, t)).ToList(),
+                Attributes = assembly.ExportedTypes.Where((t) => typeof(System.Attribute).IsAssignableFrom(t)).Select((t) => CreateNode(doc, t)).ToList(),
             };
 
-            var descriptionAttribute = assembly
-                                        .GetCustomAttributes(typeof(System.Reflection.AssemblyDescriptionAttribute), false)
-                                        .OfType<System.Reflection.AssemblyDescriptionAttribute>()
-                                        .FirstOrDefault();
-
-            node.Description = descriptionAttribute.Description;
-            node.Types = assembly.ExportedTypes.Select((t) => CreateNode(doc, t));
             return node;
         }
 
@@ -56,7 +57,9 @@ namespace SharpDocs
             {
                 Name = info.Name,
                 Description = doc,
-                Type = CreateName(info.ParameterType)
+                Type = CreateName(info.ParameterType),
+                IsOut = info.IsOut,
+                IsOptional = info.IsOptional,
             };
         }
 
@@ -85,7 +88,15 @@ namespace SharpDocs
 
             if (info.GetParameters().Any())
             {
-                fullname += $"({ (string.Join(",", info.GetParameters().Select((p) => p.ParameterType.FullName)))})";
+                var args = string.Join(",", info.GetParameters().Select((p) => {
+                    var name = p.ParameterType.FullName;
+                    if(p.IsOut)
+                    {
+                        name += "@";
+                    }
+                    return name;
+                }).ToList());
+                fullname += $"({args})";
             }
 
             var doc = FindSummary(xdoc, fullname);
@@ -95,7 +106,30 @@ namespace SharpDocs
                 Name = CreateName(info),
                 Description = doc,
                 Type = CreateName(info.ReturnType),
-                Arguments = info.GetParameters().Select((p) => this.CreateNode(xdoc,fullname, p))
+                Arguments = info.GetParameters().Select((p) => this.CreateNode(xdoc,fullname, p)).ToList()
+            };
+
+            return node;
+        }
+
+        private Method CreateNode(XDocument xdoc, System.Reflection.ConstructorInfo info)
+        {
+            var name = info.Name.Replace(".ctor", "#ctor");
+            var fullname = $"M:{info.DeclaringType.FullName}.{name}";
+
+            if (info.GetParameters().Any())
+            {
+                var args = string.Join(",", info.GetParameters().Select((p) => p.ParameterType.FullName).ToList());
+                fullname += $"({args})";
+            }
+
+            var doc = FindSummary(xdoc, fullname);
+
+            var node = new Method()
+            {
+                Name = name,
+                Description = doc,
+                Arguments = info.GetParameters().Select((p) => this.CreateNode(xdoc, fullname, p)).ToList()
             };
 
             return node;
@@ -125,9 +159,11 @@ namespace SharpDocs
             {
                 Name = CreateName(type),
                 Description = doc,
-                Methods = type.GetMethods(DeclaredFlags).Where((m) => !m.IsSpecialName).Select((m) => this.CreateNode(xdoc,m)),
-                Events = type.GetEvents(DeclaredFlags).Select((e) => this.CreateNode(xdoc,e)),
-                Properties = type.GetProperties().Select((p) => this.CreateNode(xdoc,p)),
+                Methods = type.GetMethods(DeclaredFlags).Where((m) => !m.IsSpecialName && !typeof(Task).IsAssignableFrom(m.ReturnType)).Select((m) => this.CreateNode(xdoc,m)).ToList(),
+                AsyncMethods = type.GetMethods(DeclaredFlags).Where((m) => !m.IsSpecialName && typeof(Task).IsAssignableFrom(m.ReturnType)).Select((m) => this.CreateNode(xdoc, m)).ToList(),
+                Constructors = type.GetConstructors().Select((m) => this.CreateNode(xdoc,m)).ToList(),
+                Events = type.GetEvents(DeclaredFlags).Select((e) => this.CreateNode(xdoc,e)).ToList(),
+                Properties = type.GetProperties().Select((p) => this.CreateNode(xdoc,p)).ToList(),
             };
             
             return node;
@@ -179,6 +215,24 @@ namespace SharpDocs
 
         #endregion
 
+        private string LoadTemplate(string name)
+        {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var resourceName = $"SharpDocs.Templates.{name}";
+
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd();
+            }
+        }
+
+        public string Generate(string dllFile)
+        {
+            var template = this.LoadTemplate("Default.html");
+            return Generate(dllFile, template, ".html");
+        }
+
         public string Generate(string dllFile, string template, string ext)
         {
             var assembly = System.Reflection.Assembly.LoadFrom(dllFile);
@@ -192,12 +246,11 @@ namespace SharpDocs
             }
 
             var tree = CreateTree(xml,assembly);
-
+            
             var outputFile = dllFile.Replace(".dll", ext);
 
             var render = Handlebars.Compile(template);
             var content = render(tree);
-            content = template.Replace("{{{{DOC}}}}", content);
 
             File.WriteAllText(outputFile, content);
 
