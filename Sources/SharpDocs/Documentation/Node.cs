@@ -8,8 +8,17 @@ namespace SharpDocs.Documentation
 {
     public class Node
     {
+        public static int lastId = 0;
+
+        public Node()
+        {
+            this.Id = $"{lastId++}";
+        }
+            
+        public string Id { get; protected set; }
+
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        public Parsers.Entities.Member Description { get; set; }
     }
 }

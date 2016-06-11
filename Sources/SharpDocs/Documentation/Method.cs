@@ -8,6 +8,10 @@ namespace SharpDocs.Documentation
 {
     public class Method : TypedNode
     {
+        public bool IsVirtual { get; set; }
+
+        public bool IsAbstract { get; set; }
+
         public IEnumerable<TypeParameter> Generic { get; set; }
 
         public IEnumerable<Parameter> Arguments { get; set; }

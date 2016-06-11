@@ -17,5 +17,11 @@ namespace SharpDocs.Samples
         /// Index of the example.
         /// </summary>
         int Index { get; set; }
+
+        /// <summary>
+        /// Counts the elements.
+        /// </summary>
+        /// <returns>The number of elements.</returns>
+        int Count();
     }
 }

@@ -29,6 +29,13 @@
             font-weight: 300;
             border-bottom: 1px #ddd solid;
             padding-bottom: 5px;
+            color: #000;
+        }
+
+        h1 span {
+            font-size: 20px;
+            font-weight: 300;
+            color: #444;
         }
 
         h2 {
@@ -51,7 +58,7 @@
         #menu {
             position: absolute;
             text-align: right;
-            width: 20%;
+            width: 25%;
             margin-top: 10px;
         }
 
@@ -93,20 +100,20 @@
             margin: 15px;
         }
 
-        .args {
+        .args, .typeparams {
             padding: 0px;
             list-style-type: none;
             margin-top: 0px;
             margin-bottom: 3px;
         }
 
-            .args li {
+            .args li, .typeparams li {
                 font-size: 13px;
                 margin-bottom: 4px;
                 color: #555;
             }
 
-                .args li b {
+                .args li b, .typeparams li b {
                     color: #111;
                     background-color: #ccc;
                     padding: 1px 3px;
@@ -114,13 +121,18 @@
                     border-radius: 3px;
                 }
 
+                .typeparams li b {
+                    color: #eee;
+                    background-color: #333;
+                }
+
         .member {
             margin-top: 15px;
         }
 
         .container {
-            margin-left: 20%;
-            width: 80%;
+            margin-left: 25%;
+            width: 75%;
         }
 
         .member h2, .member .body {
@@ -158,6 +170,16 @@
             border-radius: 3px;
         }
 
+        .value {
+            font-size: 14px;
+            margin-right: 4px;
+            padding: 1px 4px;
+            background: #CC9547;
+            color: #fff;
+            font-weight: 700;
+            border-radius: 3px;
+        }
+
         .member h2 .arg {
             font-size: 17px;
             color: #444;
@@ -178,6 +200,43 @@
 
         .method .body {
             border-left-color: #1B76B3;
+        }
+
+        
+        
+        .async h2 {
+            font-size: 22px;
+            border-left-color: #32A7CF;
+        }
+
+            .async h2 .icon {
+                color: #32A7CF;
+            }
+
+            .async h2 .return {
+                background-color: #32A7CF;
+            }
+
+        .async .body {
+            border-left-color: #37849E;
+        }
+
+
+        .command h2 {
+            font-size: 22px;
+            border-left-color: #A34DB3;
+        }
+
+            .command h2 .icon {
+                color: #A34DB3;
+            }
+
+            .command h2 .return {
+                background-color: #A34DB3;
+            }
+
+        .command .body {
+            border-left-color: #8A4596;
         }
 
         .property h2 {
@@ -213,6 +272,25 @@
         .event .body {
             border-left-color: #A83834;
         }
+
+        
+
+        .delegate h2 {
+            font-size: 22px;
+            border-left-color: #D1812C;
+        }
+
+            .delegate h2 .icon {
+                color: #D1812C;
+            }
+
+            .delegate h2 .return {
+                background-color: #D1812C;
+            }
+
+        .delegate .body {
+            border-left-color: #A16423;
+        }
     </style>
 </head>
 <body>
@@ -220,84 +298,134 @@
         <h1>{{ name }}</h1>
     </div>
     <div id="menu">
-        <h3>Classes</h3>
-        {{ #Types }}
-        <a href="#">{{ Name}}</a>
-        {{ /Types }}
         <h3>Interfaces</h3>
-        <a href="#">IExample</a>
+        {{ #Interfaces }}
+        <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
+        {{ /Interfaces }}
+        <h3>Abstract classes</h3>
+        {{ #AbstractClasses }}
+        <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
+        {{ /AbstractClasses }}
+        <h3>Classes</h3>
+        {{ #Classes }}
+        <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
+        {{ /Classes }}
+        <h3>Structs</h3>
+        {{ #Structs }}
+        <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
+        {{ /Structs }}
+        <h3>Enums</h3>
+        {{ #Enums }}
+        <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
+        {{ /Enums }}
     </div>
     <div class="container">
         <div class="content">
 
-            {{ #Types }}
-                <h1>{{ Name }}</h1>
-                <p class="description">{{ Description }}</p>
+            {{ #AllTypes }}
+            <div class="tab" id="{{ Id }}">
+                <h1>{{ Name }} <span>{{ Category }}</span></h1>
+                {{ #if ParentClass }}<p class="inerits">inerits <span>{{ ParentClass.Name }}</span></p>{{ /if }}
+                {{ #if ParentInterfaces }}<p class="inerits">implements {{ #each ParentInterfaces }}{{#unless @first}}, {{/unless}}<span>{{ Name }}</span>{{ /each }}</p>{{ /if }}
+                <p class="description"> {{#with Description }} {{msdoc }} {{/with}}</p>
                 {{ #if Properties }}<h2>Properties</h2> {{ /if }}
-                {{ #Properties }}
+                {{ #each Properties }}
                 <div class="member property">
-                    <h2><i class="icon ion-wrench"></i><span class="type return">{{ Type }}</span>{{ Name }}</h2>
+                    <h2><i class="icon ion-wrench"></i><span class="type return">{{ Type }}</span>{{ Name }} &#123;{{#if CanRead }} get;{{/if}}{{#if CanWrite }} set;{{/if}} &#125;</h2>
                     <div class="body">
-                        <p>{{ Description }}</p>
+                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
                     </div>
                 </div>
-                {{ /Properties }}
+                {{ /each }}
+                {{ #if Commands }}<h2>Commands</h2> {{ /if }}
+                {{ #each Commands }}
+                <div class="member command">
+                    <h2><i class="icon ion-settings"></i><span class="type return">{{ Type }}</span>{{ Name }} &#123;{{#if CanRead }} get;{{/if}}{{#if CanWrite }} set;{{/if}} &#125;</h2>
+                    <div class="body">
+                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
+                    </div>
+                </div>
+                {{ /each }}
                 {{ #if Events }}<h2>Events</h2>{{ /if }}
-                {{ #Events }}
+                {{ #each Events }}
                 <div class="member event">
                     <h2><i class="icon ion-flash"></i><span class="type return">{{ Type }}</span>{{ Name }}</h2>
                     <div class="body">
-                        <p>{{ Description }}</p>
+                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
                     </div>
                 </div>
-                {{ /Events }}
-                
-                {{ #if Methods }}<h2>Methods</h2> {{ /if }}
-                {{ #Methods }}
-                <div class="member method">
-                    <h2><i class="icon ion-ios-browsers-outline"></i><span class="type return">{{ Type }}</span>{{ Name }}({{ #Arguments }}, <span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /Arguments }})</h2>
-                    <div class="body">
-                        <ul class="args">
-                            {{ #Arguments }}
-                            <li><b>{{ Name }}</b>{{ Description }}</li>
-                            {{ /Arguments }}
-                        </ul>
-                        <p>{{ Description }}</p>
-                    </div>
-                </div>
-                {{ /Methods }}
-                {{ /Types }}
+                {{ /each }}
 
-                <h1>Example</h1>
-                <p class="inerits">inerits <span>Example2</span></p>
-                <p class="inerits">implements <span>IExample</span></p>
-                <p class="description">An example class for the sharp documentation.</p>
-                <h2>Methods</h2>
+                {{ #if Delegates }}<h2>Delegates</h2> {{ /if }}
+                {{ #each Delegates }}
+                <div class="member delegate">
+                    <h2><i class="icon ion-link"></i>{{ Name }}</h2>
+                    <div class="body">
+                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
+                    </div>
+                </div>
+                {{ /each }}
+
+                {{ #if Methods }}<h2>Methods</h2> {{ /if }}
+                {{ #each Methods }}
                 <div class="member method">
-                    <h2><i class="icon ion-ios-browsers-outline"></i><span class="type return">Task&lt;int&gt;</span>ExecuteAsync(<span class="type">int</span><span class="arg">id</span>, <span class="type">string</span><span class="arg">name</span>, <span class="type">out</span> <span class="type">string</span><span class="arg">f</span>)</h2>
+                    <h2><i class="icon ion-ios-browsers-outline"></i><span class="type return">{{ Type }}</span>{{ Name }}({{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
                     <div class="body">
-                        <ul class="args">
-                            <li><b>id</b>Identifier of the item</li>
-                            <li><b>name</b>Name of the item</li>
-                        </ul>
-                        <p>Execute the operation asynchronously and send back the results.</p>
+                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
                     </div>
                 </div>
-                <h2>Properties</h2>
-                <div class="member property">
-                    <h2><i class="icon ion-wrench"></i><span class="type return">int</span> Count</h2>
+                {{ /each }}
+
+                {{ #if AsyncMethods }}<h2>Asynchronous methods</h2> {{ /if }}
+                {{ #each AsyncMethods }}
+                <div class="member async">
+                    <h2><i class="icon ion-clock"></i><span class="type return">{{ Type }}</span>{{ Name }}({{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
                     <div class="body">
-                        <p>Then number of items.</p>
+                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
                     </div>
                 </div>
-                <h2>Events</h2>
-                <div class="member event">
-                    <h2><i class="icon ion-flash"></i><span class="type return">EventHandler</span> Deleted</h2>
-                    <div class="body">
-                        <p>When the item is deleted.</p>
-                    </div>
+                {{ /each }}
+            </div>
+                {{ /AllTypes }}           
+             {{ #each Enums }}
+            <div class="tab" id="{{ Id }}">
+                <h1>{{ Name }} <span>enum</span></h1>
+                {{ #each Values }}
+                {{ #unless @first }}, {{/unless}}
+                <span class="value"> {{ this }}</span>
+                {{ /each }}
+                <p class="description">{{#with Description }} {{msdoc }} {{/with}}</p>
                 </div>
+                {{ /each }}
             </div>
     </div>
+    <script>
+        function openTab(evt, name) {
+            var i, tabcontent, tablinks;
+
+            tabcontent = document.getElementsByClassName("tab");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            tablinks = document.getElementsByClassName("tablink");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            var d = document.getElementById(name);
+            console.log(d);
+            d.style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Setup
+        var firstTab = document.getElementsByClassName("tab")[0].id;
+        console.log(firstTab);
+        openTab({
+            currentTarget: document.getElementsByClassName("tablink")[0]
+        }, firstTab);
+        
+    </script>
 </body>
 </html>

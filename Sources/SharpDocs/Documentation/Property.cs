@@ -8,6 +8,10 @@ namespace SharpDocs.Documentation
 {
     public class Property : TypedNode
     {
+        public bool IsVirtual { get; set; }
+
+        public bool IsAbstract { get; set; }
+
         public bool CanRead { get; set; }
 
         public bool CanWrite { get; set; }

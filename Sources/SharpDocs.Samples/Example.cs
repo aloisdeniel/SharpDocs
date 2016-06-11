@@ -12,7 +12,7 @@ namespace SharpDocs.Samples
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="T2"></typeparam>
     /// <typeparam name="TExample"></typeparam>
-    public class Example<T, T2, TExample> : IExample where T : IExample
+    public class Example<T, T2, TExample> : AbstractExample, IExample where T : IExample
     {
         /// <summary>
         /// The main constructor.
@@ -28,9 +28,22 @@ namespace SharpDocs.Samples
         public string Name { get; set; }
 
         /// <summary>
+        /// A command example.
+        /// </summary>
+        public ExampleCommand CustomCommand { get; set; }
+
+        /// <summary>
         /// An other property.
         /// </summary>
         public Example<IExample,int,string> Other { get; set; }
+
+        public override bool IsAbstract
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         /// <summary>
         /// When the object is created.
@@ -67,11 +80,23 @@ namespace SharpDocs.Samples
         }
 
         /// <summary>
-        /// Example of a function with no parameter.
+        /// A full function with out parameters.
         /// </summary>
+        /// <param name="outP">The outputed parameter</param>
+        /// <param name="inP">A classical parameter</param>
         public virtual void InAndOutAndVirtualAndOptional(out int  outP, int inP = 6)
         {
             outP = 5;
+        }
+
+        public override void TestAbstract()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Count()
+        {
+            throw new NotImplementedException();
         }
     }
 }

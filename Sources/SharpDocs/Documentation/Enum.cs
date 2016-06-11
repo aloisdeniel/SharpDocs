@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace SharpDocs.Documentation
 {
-    public class TypeParameter : Node
+    public class Enum : Node
     {
-        public TypeParameter()
-        {
-            this.Id = $"type_{this.Id }";
-        }
+        public IEnumerable<string> Values { get; set; }
     }
 }

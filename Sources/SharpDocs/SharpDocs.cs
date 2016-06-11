@@ -1,37 +1,21 @@
 ﻿using HandlebarsDotNet;
 using SharpDocs.Documentation;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using System.Xml.Linq;
 
 namespace SharpDocs
 {
+    using Parsers;
+
     public class SharpDocs
     {
 
         #region Tree
 
-        private XElement FindDoc(XDocument xdoc, string fullname)
-        {
-            return xdoc.Descendants("member").Where((n) => n.Attribute("name")?.Value == fullname).ToList().FirstOrDefault();
-        }
-
-        private string FindSummary(XDocument xdoc, string fullname)
-        {
-            var doc = FindDoc(xdoc, fullname);
-            return doc?.Descendants("summary").ToList().FirstOrDefault()?.Value.Trim();
-        }
-        private string FindParam(XDocument xdoc, string fullname, string paramName, string paramType)
-        {
-            var doc = FindDoc(xdoc, fullname);
-            return doc?.Descendants("param").Where((n) => n.Attribute("name")?.Value == paramName).ToList().FirstOrDefault()?.Value.Trim();
-        }
-
-        private Assembly CreateNode(XDocument doc, System.Reflection.Assembly assembly)
+        private Assembly CreateNode(Parsers.Entities.Documentation doc, System.Reflection.Assembly assembly)
         {
             var descriptionAttribute = assembly
                                       .GetCustomAttributes(typeof(System.Reflection.AssemblyDescriptionAttribute), false)
@@ -41,95 +25,82 @@ namespace SharpDocs
             var node = new Assembly()
             {
                 Name = assembly.GetName().Name,
-                Description = descriptionAttribute?.Description,
-                Types = assembly.ExportedTypes.Where((t) => !typeof(System.Attribute).IsAssignableFrom(t)).Select((t) => CreateNode(doc, t)).ToList(),
-                Attributes = assembly.ExportedTypes.Where((t) => typeof(System.Attribute).IsAssignableFrom(t)).Select((t) => CreateNode(doc, t)).ToList(),
+                Description = doc.Assembly,
+                Enums = assembly.ExportedTypes.Where((t) => t.IsEnum).Select((t) => CreateEnumNode(doc, t)).OrderBy((t) => t.Name).ToList(),
+                Structs = assembly.ExportedTypes.Where((t) => !t.IsEnum && t.IsValueType).Select((t) => CreateNode(doc, t, "struct")).OrderBy((t) => t.Name).ToList(),
+                Interfaces = assembly.ExportedTypes.Where((t) => t.IsInterface).Select((t) => CreateNode(doc, t, "interface")).OrderBy((t) => t.Name).ToList(),
+                Classes = assembly.ExportedTypes.Where((t) => IsClass(t) && !t.IsAbstract).Select((t) => CreateNode(doc, t, "class")).OrderBy((t) => t.Name).ToList(),
+                AbstractClasses = assembly.ExportedTypes.Where((t) => IsClass(t) && t.IsAbstract).Select((t) => CreateNode(doc, t, "abstract class")).OrderBy((t) => t.Name).ToList(),
+                Attributes = assembly.ExportedTypes.Where((t) => IsAttribute(t)).Select((t) => CreateNode(doc, t, "attribute")).OrderBy((t) => t.Name).ToList(),
             };
 
             return node;
         }
 
-        private Parameter CreateNode(XDocument xdoc, string parentFullname, System.Reflection.ParameterInfo info)
+        private static bool IsClass(System.Type t)
         {
-            var doc = FindParam(xdoc, parentFullname, info.Name, "param");
+            return t.IsClass && !t.IsValueType && !IsDelegate(t) && !IsAttribute(t);
+        }
 
+        private static bool IsAttribute(System.Type type)
+        {
+            return typeof(System.Attribute).IsAssignableFrom(type);
+        }
+
+        private static bool IsDelegate(System.Type type)
+        {
+            return typeof(System.Delegate).IsAssignableFrom(type);
+        }
+
+        private Parameter CreateNode(Parsers.Entities.Documentation doc, System.Reflection.ParameterInfo info)
+        {
             return new Parameter()
             {
                 Name = info.Name,
-                Description = doc,
+                Description = doc.FindParameter(info),
                 Type = CreateName(info.ParameterType),
                 IsOut = info.IsOut,
                 IsOptional = info.IsOptional,
             };
         }
 
-        private Property CreateNode(XDocument xdoc, System.Reflection.PropertyInfo info)
+        private Property CreateNode(Parsers.Entities.Documentation doc, System.Reflection.PropertyInfo info)
         {
-            var doc = FindSummary(xdoc, $"P:{info.DeclaringType.FullName}.{info.Name}");
-
             return new Property()
             {
                 Name = info.Name,
-                Description = doc,
+                Description = doc.FindProperty(info),
+                IsAbstract = (info.CanWrite && info.SetMethod.IsAbstract) || (info.CanRead && info.GetMethod.IsAbstract),
+                IsVirtual = (info.CanWrite && info.SetMethod.IsVirtual) || (info.CanRead && info.GetMethod.IsVirtual),
                 Type = CreateName(info.PropertyType),
                 CanRead = info.CanRead,
                 CanWrite = info.CanWrite,
             };
         }
 
-        private Method CreateNode(XDocument xdoc, System.Reflection.MethodInfo info)
+        private Method CreateNode(Parsers.Entities.Documentation doc, System.Reflection.MethodInfo info)
         {
-            var fullname = $"M:{info.DeclaringType.FullName}.{info.Name}";
-
-            if (info.GetGenericArguments().Any())
-            {
-                fullname += $"``{info.GetGenericArguments().Count()}";
-            }
-
-            if (info.GetParameters().Any())
-            {
-                var args = string.Join(",", info.GetParameters().Select((p) => {
-                    var name = p.ParameterType.FullName;
-                    if(p.IsOut)
-                    {
-                        name += "@";
-                    }
-                    return name;
-                }).ToList());
-                fullname += $"({args})";
-            }
-
-            var doc = FindSummary(xdoc, fullname);
-
             var node = new Method()
             {
                 Name = CreateName(info),
-                Description = doc,
+                Description = doc.FindMethod(info),
+                IsAbstract = info.IsAbstract,
+                IsVirtual = info.IsVirtual,
                 Type = CreateName(info.ReturnType),
-                Arguments = info.GetParameters().Select((p) => this.CreateNode(xdoc,fullname, p)).ToList()
+                Arguments = info.GetParameters().Select((p) => this.CreateNode(doc, p)).ToList()
             };
 
             return node;
         }
 
-        private Method CreateNode(XDocument xdoc, System.Reflection.ConstructorInfo info)
+        private Method CreateNode(Parsers.Entities.Documentation doc, System.Reflection.ConstructorInfo info)
         {
             var name = info.Name.Replace(".ctor", "#ctor");
-            var fullname = $"M:{info.DeclaringType.FullName}.{name}";
-
-            if (info.GetParameters().Any())
-            {
-                var args = string.Join(",", info.GetParameters().Select((p) => p.ParameterType.FullName).ToList());
-                fullname += $"({args})";
-            }
-
-            var doc = FindSummary(xdoc, fullname);
-
             var node = new Method()
             {
                 Name = name,
-                Description = doc,
-                Arguments = info.GetParameters().Select((p) => this.CreateNode(xdoc, fullname, p)).ToList()
+                Description = doc.FindConstructor(info),
+                Arguments = info.GetParameters().Select((p) => this.CreateNode(doc, p)).ToList()
             };
 
             return node;
@@ -137,39 +108,56 @@ namespace SharpDocs
 
         private readonly System.Reflection.BindingFlags DeclaredFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.DeclaredOnly;
 
-        private Event CreateNode(XDocument xdoc, System.Reflection.EventInfo info)
+        private Event CreateNode(Parsers.Entities.Documentation doc, System.Reflection.EventInfo info)
         {
-            var doc = FindSummary(xdoc, $"E:{info.DeclaringType.FullName}.{info.Name}");
-
             var node = new Event()
             {
                 Name = info.Name,
-                Description = doc,
+                Description = doc.FindEvent(info),
                 Type = CreateName(info.EventHandlerType),
             };
 
             return node;
         }
 
-        private Type CreateNode(XDocument xdoc, System.Type type)
+        private Enum CreateEnumNode(Parsers.Entities.Documentation doc, System.Type type)
         {
-            var doc = FindSummary(xdoc, $"T:{type.FullName}");
+            return new Enum()
+            {
+                Name = CreateName(type),
+                Description = doc.FindType(type),
+                Values = System.Enum.GetNames(type),
+            };
+        }
 
+        private Type CreateNode(Parsers.Entities.Documentation doc, System.Type type, string category)
+        {
             var node = new Type()
             {
                 Name = CreateName(type),
-                Description = doc,
-                Methods = type.GetMethods(DeclaredFlags).Where((m) => !m.IsSpecialName && !typeof(Task).IsAssignableFrom(m.ReturnType)).Select((m) => this.CreateNode(xdoc,m)).ToList(),
-                AsyncMethods = type.GetMethods(DeclaredFlags).Where((m) => !m.IsSpecialName && typeof(Task).IsAssignableFrom(m.ReturnType)).Select((m) => this.CreateNode(xdoc, m)).ToList(),
-                Constructors = type.GetConstructors().Select((m) => this.CreateNode(xdoc,m)).ToList(),
-                Events = type.GetEvents(DeclaredFlags).Select((e) => this.CreateNode(xdoc,e)).ToList(),
-                Properties = type.GetProperties().Select((p) => this.CreateNode(xdoc,p)).ToList(),
+                Category = category,
+                Description = doc.FindType(type),
+                IsAbstract = type.IsAbstract,
+                Delegates = type.GetNestedTypes().Where((t) => typeof(System.Delegate).IsAssignableFrom(t)).Select((t) => this.CreateParameterNode(doc, t)).OrderBy((n) => n.Name).ToList(),
+                ParentClass = type.BaseType != null && type.BaseType != typeof(System.ValueType) && type.BaseType != typeof(object) ? this.CreateParameterNode(doc, type.BaseType) : null,
+                ParentInterfaces = type.GetInterfaces().Select((t) => this.CreateParameterNode(doc,t)).ToList(),
+                Methods = type.GetMethods(DeclaredFlags).Where((m) => !m.IsSpecialName && !typeof(Task).IsAssignableFrom(m.ReturnType)).Select((m) => this.CreateNode(doc,m)).OrderBy((m) => m.Name).ToList(),
+                AsyncMethods = type.GetMethods(DeclaredFlags).Where((m) => !m.IsSpecialName && typeof(Task).IsAssignableFrom(m.ReturnType)).Select((m) => this.CreateNode(doc, m)).OrderBy((m) => m.Name).ToList(),
+                Constructors = type.GetConstructors().Select((m) => this.CreateNode(doc,m)).ToList(),
+                Events = type.GetEvents(DeclaredFlags).Select((e) => this.CreateNode(doc,e)).OrderBy((m) => m.Name).ToList(),
+                Properties = type.GetProperties().Where((p) => !IsCommand(p)).Select((p) => this.CreateNode(doc,p)).OrderBy((m) => m.Name).ToList(),
+                Commands = type.GetProperties().Where((p) => IsCommand(p)).Select((p) => this.CreateNode(doc, p)).OrderBy((m) => m.Name).ToList(),
             };
             
             return node;
         }
 
-        private TypeParameter CreateParameterNode(XDocument xdoc, System.Type type)
+        private static bool IsCommand(System.Reflection.PropertyInfo p)
+        {
+            return typeof(ICommand).IsAssignableFrom(p.PropertyType);
+        }
+
+        private TypeParameter CreateParameterNode(Parsers.Entities.Documentation doc, System.Type type)
         {
 
             var node = new TypeParameter()
@@ -179,11 +167,11 @@ namespace SharpDocs
 
             return node;
         }
-
-
+        
         private string CreateName(System.Type type)
         {
             var name = type.Name;
+            
             var gs = type.GetGenericArguments();
 
             if (gs.Any())
@@ -191,6 +179,16 @@ namespace SharpDocs
                 name = name.Replace($"`{gs.Length}", "<" + string.Join(",", gs.Select((g) => g.Name)) + ">");
             }
             
+            if (type.IsByRef)
+            {
+                name = name.TrimEnd('&');
+            }
+            
+            if (type.IsNested && type.DeclaringType != null)
+            {
+                name = $"{CreateName(type.DeclaringType)}.{name}";
+            }
+
             return name;
         }
 
@@ -207,7 +205,7 @@ namespace SharpDocs
             return name;
         }
 
-        private Assembly CreateTree(XDocument doc, System.Reflection.Assembly assembly)
+        private Assembly CreateTree(Parsers.Entities.Documentation doc, System.Reflection.Assembly assembly)
         {
             var root = CreateNode(doc,assembly);
             return root;
@@ -233,21 +231,103 @@ namespace SharpDocs
             return Generate(dllFile, template, ".html");
         }
 
+        private void Generate(TextWriter writer, Parsers.Entities.Content content)
+        {
+            foreach (var item in content)
+            {
+                if (item is Parsers.Entities.Content.Text)
+                {
+                    writer.WriteSafeString($"{(item as Parsers.Entities.Content.Text).Value}");
+                }
+                else if (item is Parsers.Entities.Content.See)
+                {
+                    writer.WriteSafeString($"<b>{(item as Parsers.Entities.Content.See).Reference}</b>");
+                }
+                else if (item is Parsers.Entities.Content.Code)
+                {
+                    writer.WriteSafeString($"<pre><code>{(item as Parsers.Entities.Content.Code).Value}</code></pre>");
+                }
+                else if (item is Parsers.Entities.Content.InlineCode)
+                {
+                    writer.WriteSafeString($"<code>{(item as Parsers.Entities.Content.Code).Value}</code>");
+                }
+                else if (item is Parsers.Entities.Content.List)
+                {
+                    var list = item as Parsers.Entities.Content.List;
+
+                    var listtype = "ul";
+                    if (list.Type == "number")
+                    {
+                        listtype = "ol";
+                    }
+
+                    if (list.Header != null)
+                    {
+                        writer.WriteSafeString($"<h3>{list.Header.Value}</h3>\n");
+                    }
+
+                    if (list.Items != null)
+                    {
+                        writer.WriteSafeString($"<{listtype}>");
+
+                        foreach (var listitem in list.Items)
+                        {
+                            writer.WriteSafeString($"<li>");
+                            Generate(writer, listitem.Value);
+                            writer.WriteSafeString($"</li>");
+                        }
+
+                        writer.WriteSafeString($"</{listtype}>");
+                    }
+                }
+            }
+        }
+
         public string Generate(string dllFile, string template, string ext)
         {
             var assembly = System.Reflection.Assembly.LoadFrom(dllFile);
             
             var xmlDocFile = dllFile.Replace(".dll", ".xml");
-            XDocument xml = null;
+    
+            var doc = new MsDocParser().Parse(xmlDocFile);
 
-            if (File.Exists(xmlDocFile))
-            {
-                xml = XDocument.Load(xmlDocFile);
-            }
-
-            var tree = CreateTree(xml,assembly);
+            var tree = CreateTree(doc,assembly);
             
             var outputFile = dllFile.Replace(".dll", ext);
+
+            Handlebars.RegisterHelper("msdoc", (writer, context, parameters) => {
+                var member = context as Parsers.Entities.Member;
+
+                if(member != null)
+                {
+                    if (member.TypeParameters.Any())
+                    {
+                        writer.WriteSafeString("<ul class='typeparams'>");
+                        foreach (var p in member.TypeParameters)
+                        {
+                            writer.WriteSafeString($"<li><b>{p.Name}</b>");
+                            Generate(writer, p.Summary);
+                            writer.WriteSafeString("</li>");
+                        }
+                        writer.WriteSafeString("</ul>");
+                    }
+
+                    if (member.Parameters.Any())
+                    {
+                        writer.WriteSafeString("<ul class='args'>");
+                        foreach (var p in member.Parameters)
+                        {
+                            writer.WriteSafeString($"<li><b>{p.Name}</b>");
+                            Generate(writer, p.Summary);
+                            writer.WriteSafeString("</li>");
+                        }
+                        writer.WriteSafeString("</ul>");
+                    }
+
+                    Generate(writer, member.Summary);
+                }
+                
+            });
 
             var render = Handlebars.Compile(template);
             var content = render(tree);

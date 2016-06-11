@@ -8,11 +8,23 @@ namespace SharpDocs.Client
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            const string folder = @"..\..\..\SharpDocs.Samples\bin\Debug\";
-            const string name = @"SharpDocs.Samples";
-            var md = new SharpDocs().Generate($"{folder}\\{name}.dll");
+            if (args.Length == 0)
+            {
+                System.Console.WriteLine("An assembly name should be precised.");
+                return 1;
+            }
+
+            //const string assembly = @"..\..\..\SharpDocs.Samples\bin\Debug\SharpDocs.Samples.dll";
+            var assembly = args[0].Trim('"').Trim('\'');
+
+            Console.WriteLine($"Generating documentation for {assembly}");
+
+            var docs = new SharpDocs();
+            docs.Generate(assembly);
+
+            return 0;
         }
     }
 }

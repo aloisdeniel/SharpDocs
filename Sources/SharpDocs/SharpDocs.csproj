@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Documentation\Enum.cs" />
     <Compile Include="Documentation\Parameter.cs" />
     <Compile Include="Documentation\Assembly.cs" />
     <Compile Include="Documentation\Event.cs" />
@@ -53,6 +54,13 @@
     <Compile Include="Documentation\Type.cs" />
     <Compile Include="Documentation\TypedNode.cs" />
     <Compile Include="Documentation\TypeParameter.cs" />
+    <Compile Include="Parsers\Entities\Content.cs" />
+    <Compile Include="Parsers\Entities\Documentation.cs" />
+    <Compile Include="Parsers\Entities\Exception.cs" />
+    <Compile Include="Parsers\Entities\Member.cs" />
+    <Compile Include="Parsers\Entities\Parameter.cs" />
+    <Compile Include="Parsers\FindExtensions.cs" />
+    <Compile Include="Parsers\MsDocParser.cs" />
     <Compile Include="SharpDocs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

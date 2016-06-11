@@ -8,8 +8,28 @@ namespace SharpDocs.Documentation
 {
     public class Assembly : Node
     {
-        public IEnumerable<Type> Types { get; set; }
+        public IEnumerable<Type> Classes { get; set; }
+
+        public IEnumerable<Type> Interfaces { get; set; }
+
+        public IEnumerable<Enum> Enums { get; set; }
+
+        public IEnumerable<Type> Structs { get; set; }
 
         public IEnumerable<Type> Attributes { get; set; }
+
+        public IEnumerable<Type> AllTypes
+        {
+            get
+            {
+                var types = Interfaces.ToList();
+                types.AddRange(AbstractClasses);
+                types.AddRange(Classes);
+                types.AddRange(Structs);
+                return types;
+            }
+        }
+
+        public List<Type> AbstractClasses { get; internal set; }
     }
 }
