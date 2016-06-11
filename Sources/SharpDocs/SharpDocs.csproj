@@ -54,6 +54,7 @@
     <Compile Include="Documentation\Type.cs" />
     <Compile Include="Documentation\TypedNode.cs" />
     <Compile Include="Documentation\TypeParameter.cs" />
+    <Compile Include="Formatters\HtmlFormatter.cs" />
     <Compile Include="Parsers\Entities\Content.cs" />
     <Compile Include="Parsers\Entities\Documentation.cs" />
     <Compile Include="Parsers\Entities\Exception.cs" />
