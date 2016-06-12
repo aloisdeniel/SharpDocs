@@ -44,7 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Documentation\Constant.cs" />
     <Compile Include="Documentation\Enum.cs" />
+    <Compile Include="Documentation\Field.cs" />
     <Compile Include="Documentation\Parameter.cs" />
     <Compile Include="Documentation\Assembly.cs" />
     <Compile Include="Documentation\Event.cs" />
@@ -55,6 +57,7 @@
     <Compile Include="Documentation\TypedNode.cs" />
     <Compile Include="Documentation\TypeParameter.cs" />
     <Compile Include="Formatters\HtmlFormatter.cs" />
+    <Compile Include="Formatters\IFormatter.cs" />
     <Compile Include="Parsers\Entities\Content.cs" />
     <Compile Include="Parsers\Entities\Documentation.cs" />
     <Compile Include="Parsers\Entities\Exception.cs" />

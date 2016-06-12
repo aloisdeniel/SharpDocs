@@ -14,6 +14,11 @@
             public string Value { get; set; }
         }
 
+        public class Paragraph :  IContentNode
+        {
+            public Content Content { get; set; }
+        }
+
         public class InlineCode : IContentNode // <c>
         {
             public string Value { get; set; }

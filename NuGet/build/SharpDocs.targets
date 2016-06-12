@@ -5,6 +5,6 @@ SharpDocs
 -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Target Name="AfterBuild">
-        <Exec Command="$(MSBuildThisFileDirectory)..\tools\SharpDocs.Client.exe '$(MSBuildProjectDirectory)\$(OutputPath)\$(AssemblyName).dll'" />
+        <Exec Command="$(MSBuildThisFileDirectory)..\tools\SharpDocs.Client.exe &quot;$(MSBuildProjectDirectory)\$(OutputPath)\$(AssemblyName).dll&quot;" />
     </Target>
 </Project>

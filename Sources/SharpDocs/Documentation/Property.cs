@@ -8,6 +8,8 @@ namespace SharpDocs.Documentation
 {
     public class Property : TypedNode
     {
+        public bool IsStatic { get; set; }
+
         public bool IsVirtual { get; set; }
 
         public bool IsAbstract { get; set; }

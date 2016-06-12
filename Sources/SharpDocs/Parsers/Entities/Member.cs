@@ -19,7 +19,9 @@ namespace SharpDocs.Parsers.Entities
         public IEnumerable<Exception> Exceptions { get; internal set; }
 
         public Content Returns { get; set; }
+
         public Content Example { get; internal set; }
+
         public Content Remarks { get; internal set; }
     }
 }

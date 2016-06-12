@@ -8,6 +8,8 @@ namespace SharpDocs.Documentation
 {
     public class Method : TypedNode
     {
+        public bool IsStatic { get; set; }
+
         public bool IsVirtual { get; set; }
 
         public bool IsAbstract { get; set; }
@@ -15,5 +17,7 @@ namespace SharpDocs.Documentation
         public IEnumerable<TypeParameter> Generic { get; set; }
 
         public IEnumerable<Parameter> Arguments { get; set; }
+
+        public bool IsExtension { get; set; }
     }
 }

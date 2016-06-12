@@ -10,5 +10,6 @@ namespace SharpDocs.Documentation
     {
         public bool IsOptional { get; internal set; }
         public bool IsOut { get; set; }
+        public bool IsRef { get; set; }
     }
 }

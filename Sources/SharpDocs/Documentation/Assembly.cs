@@ -25,11 +25,14 @@ namespace SharpDocs.Documentation
                 var types = Interfaces.ToList();
                 types.AddRange(AbstractClasses);
                 types.AddRange(Classes);
+                types.AddRange(StaticClasses);
+                types.AddRange(Attributes);
                 types.AddRange(Structs);
                 return types;
             }
         }
 
         public List<Type> AbstractClasses { get; internal set; }
+        public List<Type> StaticClasses { get; internal set; }
     }
 }

@@ -44,6 +44,12 @@
             padding-bottom: 5px;
         }
 
+        h5{
+            font-size: 15px;
+            margin-top: 12px;
+            margin-bottom: 4px;
+        }
+
         .header {
             background: #000;
         }
@@ -77,6 +83,12 @@
                 font-size: 14px;
                 margin-bottom: 0px;
                 margin-right: 25px;
+            }
+
+            #menu a.active {
+                padding-right: 4px;
+                font-weight: 700;
+                border-right: 4px solid #1B76B3;
             }
 
                 #menu a:hover {
@@ -145,6 +157,10 @@
             margin: 0px;
             color: #000000;
         }
+        .member h2 .accessors {
+            color: #444;
+            font-size: 14px;
+        }
 
         .member .body {
             padding-left: 10px;
@@ -153,12 +169,46 @@
             .member .body p {
                 color: #444444;
                 margin: 0px;
+                margin-top: 10px;
                 padding: 0px;
+            }
+
+            .member .body p:first-child {
+                margin-top: 0px;
+            }
+            
+            .member .body li {
+                color: #444444;
+            }
+            
+            .member .body code, .member .body pre  {
+                font-family: "Consolas", "Lucida Console", "Monaco", monospace;
+                background-color: #ddd;
+                color: #444444;
+            }
+            .member .body code
+            {
+                padding: 2px;
+            }
+
+            }
+            .member .body pre {
+                margin-right: 10px;
             }
 
         .member h2 .icon {
             font-size: 15px;
             margin-right: 8px;
+        }
+
+        
+        .static {
+            font-size: 14px;
+            margin-right: 4px;
+            padding: 1px 4px;
+            background: #222;
+            color: #fff;
+            border-radius: 3px;
         }
 
         .member h2 .type {
@@ -200,6 +250,41 @@
 
         .method .body {
             border-left-color: #1B76B3;
+        }
+
+        .operator h2 {
+            font-size: 22px;
+            border-left-color: #77B84F;
+        }
+
+            .operator h2 .icon {
+                color: #77B84F;
+            }
+
+            .operator h2 .return {
+                background-color: #77B84F;
+            }
+
+        .operator .body {
+            border-left-color: #618F45;
+        }
+
+
+        .constructor h2 {
+            font-size: 22px;
+            border-left-color: #2358CC;
+        }
+
+            .constructor h2 .icon {
+                color: #2358CC;
+            }
+
+            .constructor h2 .return {
+                background-color: #2358CC;
+            }
+
+        .constructor .body {
+            border-left-color: #294480;
         }
 
         
@@ -256,6 +341,42 @@
             border-left-color: #674885;
         }
 
+        
+
+        .field h2 {
+            font-size: 22px;
+            border-left-color: #5E4CA6;
+        }
+
+            .field h2 .icon {
+                color: #5E4CA6;
+            }
+
+            .field h2 .return {
+                background-color: #5E4CA6;
+            }
+
+        .field .body {
+            border-left-color: #4C407D;
+        }
+
+        .constant h2 {
+            font-size: 22px;
+            border-left-color: #52AB7D;
+        }
+
+            .constant h2 .icon {
+                color: #52AB7D;
+            }
+
+            .constant h2 .return {
+                background-color: #52AB7D;
+            }
+
+        .constant .body {
+            border-left-color: #42755B;
+        }
+
         .event h2 {
             font-size: 22px;
             border-left-color: #dd514c;
@@ -310,6 +431,14 @@
         {{ #Classes }}
         <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
         {{ /Classes }}
+        <h3>Static classes</h3>
+        {{ #StaticClasses }}
+        <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
+        {{ /StaticClasses }}
+        <h3>Attributes</h3>
+        {{ #each Attributes }}
+        <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
+        {{ /each }}
         <h3>Structs</h3>
         {{ #Structs }}
         <a class="tablink" href="#" onclick="openTab(event, '{{ Id }}')">{{ Name}}</a>
@@ -325,64 +454,118 @@
             {{ #AllTypes }}
             <div class="tab" id="{{ Id }}">
                 <h1>{{ Name }} <span>{{ Category }}</span></h1>
+                <p class="description"> {{#with Description }} {{msdoc }} {{/with}}</p>
+
+                <h3>Namespace</h3>
+                <p class="inerits"><span>{{ Namespace }}</span><br /></p>
+
+                {{ #if HasHierarchy }}
+                <h3>Hierarchy</h3>
+
                 {{ #if ParentClass }}<p class="inerits">inerits <span>{{ ParentClass.Name }}</span></p>{{ /if }}
                 {{ #if ParentInterfaces }}<p class="inerits">implements {{ #each ParentInterfaces }}{{#unless @first}}, {{/unless}}<span>{{ Name }}</span>{{ /each }}</p>{{ /if }}
-                <p class="description"> {{#with Description }} {{msdoc }} {{/with}}</p>
+                {{ /if }}
+
+                {{ #if Constructors }}<h2>Constructors</h2> {{ /if }}
+                {{ #each Constructors }}
+                <div class="member constructor">
+                    <h2><i class="icon ion-wand"></i>{{ Name }}({{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsRef }}<span class="type">ref</span> {{/if}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
+                </div>
+                {{ /each }}                 
+                
+                {{ #if Constants }}<h2>Constants</h2> {{ /if }}
+                {{ #each Constants }}
+                <div class="member constant">
+                    <h2><i class="icon ion-key"></i><span class="type return">{{ Type }}</span>{{ Name }} = <code>{{ Value }}</code></h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
+                </div>
+                {{ /each }}                
+                
+                {{ #if Fields }}<h2>Fields</h2> {{ /if }}
+                {{ #each Fields }}
+                <div class="member field">
+                    <h2><i class="icon ion-gear-b"></i><span class="type return">{{ Type }}</span>{{ #if IsStatic }} <span class="static">static</span>{{ /if }}{{ #if IsReadOnly }} <span class="static">readonly</span>{{ /if }}{{ Name }}</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
+                </div>
+                {{ /each }}               
+                
+                {{ #if StaticFields }}<h2>Static fields</h2> {{ /if }}
+                {{ #each StaticFields }}
+                <div class="member field">
+                    <h2><i class="icon ion-gear-b"></i><span class="type return">{{ Type }}</span>{{ #if IsStatic }} <span class="static">static</span>{{ /if }}{{ #if IsReadOnly }} <span class="static">readonly</span>{{ /if }}{{ Name }}</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
+                </div>
+                {{ /each }}
+
                 {{ #if Properties }}<h2>Properties</h2> {{ /if }}
                 {{ #each Properties }}
                 <div class="member property">
-                    <h2><i class="icon ion-wrench"></i><span class="type return">{{ Type }}</span>{{ Name }} &#123;{{#if CanRead }} get;{{/if}}{{#if CanWrite }} set;{{/if}} &#125;</h2>
-                    <div class="body">
-                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
-                    </div>
+                    <h2><i class="icon ion-wrench"></i><span class="type return">{{ Type }}</span>{{ #if IsStatic }} <span class="static">static</span>{{ /if }}{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }} <span class="accessors">{{#if CanRead }} get{{/if}}{{#if CanWrite }}{{#if CanRead }},{{/if}} set{{/if}}</span></h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
+                </div>
+                {{ /each }}                
+                
+                {{ #if StaticProperties }}<h2>Static properties</h2> {{ /if }}
+                {{ #each StaticProperties }}
+                <div class="member property">
+                    <h2><i class="icon ion-wrench"></i><span class="type return">{{ Type }}</span>{{ #if IsStatic }} <span class="static">static</span>{{ /if }}{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }} <span class="accessors">{{#if CanRead }} get{{/if}}{{#if CanWrite }}{{#if CanRead }},{{/if}} set{{/if}}</span></h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
                 </div>
                 {{ /each }}
+
                 {{ #if Commands }}<h2>Commands</h2> {{ /if }}
                 {{ #each Commands }}
                 <div class="member command">
-                    <h2><i class="icon ion-settings"></i><span class="type return">{{ Type }}</span>{{ Name }} &#123;{{#if CanRead }} get;{{/if}}{{#if CanWrite }} set;{{/if}} &#125;</h2>
-                    <div class="body">
-                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
-                    </div>
+                    <h2><i class="icon ion-settings"></i><span class="type return">{{ Type }}</span>{{ #if IsStatic }} <span class="static">static</span>{{ /if }}{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }} &#123;{{#if CanRead }} get;{{/if}}{{#if CanWrite }} set;{{/if}} &#125;</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
                 </div>
                 {{ /each }}
                 {{ #if Events }}<h2>Events</h2>{{ /if }}
                 {{ #each Events }}
                 <div class="member event">
-                    <h2><i class="icon ion-flash"></i><span class="type return">{{ Type }}</span>{{ Name }}</h2>
-                    <div class="body">
-                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
-                    </div>
+                    <h2><i class="icon ion-flash"></i><span class="type return">{{ Type }}</span>{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }}</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
                 </div>
                 {{ /each }}
 
                 {{ #if Delegates }}<h2>Delegates</h2> {{ /if }}
                 {{ #each Delegates }}
                 <div class="member delegate">
-                    <h2><i class="icon ion-link"></i>{{ Name }}</h2>
-                    <div class="body">
-                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
-                    </div>
+                    <h2><i class="icon ion-link"></i>{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }}({{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
                 </div>
                 {{ /each }}
 
                 {{ #if Methods }}<h2>Methods</h2> {{ /if }}
                 {{ #each Methods }}
                 <div class="member method">
-                    <h2><i class="icon ion-ios-browsers-outline"></i><span class="type return">{{ Type }}</span>{{ Name }}({{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
-                    <div class="body">
-                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
-                    </div>
+                    <h2><i class="icon ion-cube"></i><span class="type return">{{ Type }}</span>{{ #if IsStatic }} <span class="static">static</span>{{ /if }}{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }}({{#if IsExtension}}<span class="return type">this</span>{{ /if}}  {{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsRef }}<span class="type">ref</span> {{/if}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
+                </div>
+                {{ /each }}                
+                
+                {{ #if StaticMethods }}<h2>Static methods</h2> {{ /if }}
+                {{ #each StaticMethods }}
+                <div class="member method">
+                    <h2><i class="icon ion-cube"></i><span class="type return">{{ Type }}</span>{{ #if IsStatic }} <span class="static">static</span>{{ /if }}{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }}({{#if IsExtension}}<span class="return type">this</span>{{ /if}}  {{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsRef }}<span class="type">ref</span> {{/if}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
                 </div>
                 {{ /each }}
 
                 {{ #if AsyncMethods }}<h2>Asynchronous methods</h2> {{ /if }}
                 {{ #each AsyncMethods }}
                 <div class="member async">
-                    <h2><i class="icon ion-clock"></i><span class="type return">{{ Type }}</span>{{ Name }}({{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
-                    <div class="body">
-                        <p>{{#with Description }} {{msdoc }} {{/with}}</p>
-                    </div>
+                    <h2><i class="icon ion-clock"></i><span class="type return">{{ Type }}</span>{{ #if IsStatic }} <span class="static">static</span>{{ /if }}{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }}({{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsRef }}<span class="type">ref</span> {{/if}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
+                </div>
+                {{ /each }}                
+                
+                {{ #if Operators }}<h2>Operators</h2> {{ /if }}
+                {{ #each Operators }}
+                <div class="member operator">
+                    <h2><i class="icon ion-asterisk"></i><span class="type return">{{ Type }}</span>{{ #if IsAbstract }} <span class="static">abstract</span>{{ /if }}{{ Name }}({{ #each Arguments }}{{ #unless @first }}, {{/unless}}{{#if IsRef }}<span class="type">ref</span> {{/if}}{{#if IsOut }}<span class="type">out</span> {{/if}}<span class="type">{{ Type }}</span><span class="arg">{{ Name }}</span>{{ /each }})</h2>
+                    <div class="body">{{#with Description }} {{msdoc }} {{/with}}</div>
                 </div>
                 {{ /each }}
             </div>
@@ -394,8 +577,10 @@
                 {{ #unless @first }}, {{/unless}}
                 <span class="value"> {{ this }}</span>
                 {{ /each }}
-                <p class="description">{{#with Description }} {{msdoc }} {{/with}}</p>
-                </div>
+                <p class="description"> {{#with Description }} {{msdoc }} {{/with}}</p>
+
+                <h3>Namespace</h3>
+                <p class="inerits"><span>{{ Namespace }}</span><br /></p>
                 {{ /each }}
             </div>
     </div>

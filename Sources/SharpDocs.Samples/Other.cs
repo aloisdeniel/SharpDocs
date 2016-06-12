@@ -30,6 +30,14 @@ namespace SharpDocs.Samples
         public string q;
 
 
+
+        /// <summary>
+        /// Enter description here for field q.
+        /// ID string generated is "F:N.X.q".
+        /// </summary>
+        public static string sq;
+
+
         /// <summary>
         /// Enter description for constant PI.
         /// ID string generated is "F:N.X.PI".
@@ -38,11 +46,25 @@ namespace SharpDocs.Samples
 
 
         /// <summary>
+        /// A readonly.
+        /// </summary>
+        public static readonly double[] Values = new double[] { 3.5, 8.7 };
+
+
+        /// <summary>
         /// Enter description for method f.
         /// ID string generated is "M:N.X.f".
         /// </summary>
         /// <returns>Describe return value.</returns>
         public int f() { return 1; }
+
+
+        /// <summary>
+        /// Enter description for method f.
+        /// ID string generated is "M:N.X.f".
+        /// </summary>
+        /// <returns>Describe return value.</returns>
+        public static int sf() { return 1; }
 
 
         /// <summary>
@@ -63,7 +85,7 @@ namespace SharpDocs.Samples
         /// <param name="array1">Describe parameter.</param>
         /// <param name="array">Describe parameter.</param>
         /// <returns>Describe return value.</returns>
-        public int gg(short[] array1, int[,] array) { return 0; }
+        public int gg<T>(short[] array1, T[,] array) { return 0; }
 
 
         /// <summary>
@@ -77,11 +99,156 @@ namespace SharpDocs.Samples
 
 
         /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="x">Describe parameter.</param>
+        /// <param name="xx">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator -(Other x, Other xx) { return x; }
+
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="x">Describe parameter.</param>
+        /// <param name="xx">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator /(Other x, Other xx) { return x; }
+
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="x">Describe parameter.</param>
+        /// <param name="xx">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator *(Other x, Other xx) { return x; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static bool operator ==(Other a, Other b) { return false; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static bool operator !=(Other a, Other b) { return false; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static bool operator >=(Other a, Other b) { return false; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static bool operator <=(Other a, Other b) { return false; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static bool operator <(Other a, Other b) { return false; }
+
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator +(Other a) { return null; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator -(Other a) { return null; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator ++(Other a) { return null; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator --(Other a) { return null; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator !(Other a) { return null; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static Other operator ~(Other a) { return null; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static bool operator true(Other a) { return false; }
+
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static bool operator false(Other a) { return false; }
+        
+        /// <summary>
+        /// Enter description for operator.
+        /// </summary>
+        /// <param name="a">Describe parameter.</param>
+        /// <param name="b">Describe parameter.</param>
+        /// <returns>Describe return value.</returns>
+        public static bool operator >(Other a, Other b) { return false; }
+
+
+        /// <summary>
         /// Enter description for property.
         /// ID string generated is "P:N.X.prop".
         /// </summary>
         public int prop { get { return 1; } set { } }
-
+        
+        /// <summary>
+        /// Enter description for property.
+        /// ID string generated is "P:N.X.prop".
+        /// </summary>
+        public static int sprop { get { return 1; } set { } }
 
         /// <summary>
         /// Enter description for event.

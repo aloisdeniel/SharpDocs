@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace SharpDocs.Documentation
 {
-    public class Enum : Node
+    public class Constant : Field
     {
-        public string Namespace { get; set; }
-
-        public IEnumerable<string> Values { get; set; }
+        public string Value { get; set; }
     }
 }

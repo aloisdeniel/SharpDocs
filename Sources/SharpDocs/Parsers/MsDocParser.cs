@@ -62,6 +62,13 @@
                             Reference = e.Attribute("cref")?.Value,
                         });
                     }
+                    else if (e.Name == "para")
+                    {
+                        result.Add(new Content.Paragraph()
+                        {
+                            Content = ParseContent(e),
+                        });
+                    }
                     else if (e.Name == "list")
                     {
                         var listitems = new List<Content.List.Item>();

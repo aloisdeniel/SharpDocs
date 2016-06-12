@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SharpDocs.Documentation
 {
-    public class Enum : Node
+    public class Field : TypedNode
     {
-        public string Namespace { get; set; }
+        public bool IsStatic { get; set; }
 
-        public IEnumerable<string> Values { get; set; }
+        public bool IsReadOnly { get; set; }
     }
 }
