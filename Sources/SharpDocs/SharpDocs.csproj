@@ -63,6 +63,7 @@
     <Compile Include="Parsers\Entities\Exception.cs" />
     <Compile Include="Parsers\Entities\Member.cs" />
     <Compile Include="Parsers\Entities\Parameter.cs" />
+    <Compile Include="Parsers\Entities\SeeAlso.cs" />
     <Compile Include="Parsers\FindExtensions.cs" />
     <Compile Include="Parsers\MsDocParser.cs" />
     <Compile Include="SharpDocs.cs" />

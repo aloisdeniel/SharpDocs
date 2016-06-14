@@ -1,12 +1,12 @@
 ﻿namespace SharpDocs.Parsers.Entities
 {
     /// <summary>
-    /// A method parameter.
+    /// Link to another type.
     /// </summary>
-    public class Parameter : Member
+    public class SeeAlso
     {
         /// <summary>
-        /// The reference.
+        /// The referenced type pointer.
         /// </summary>
         public string Reference { get; set; }
     }

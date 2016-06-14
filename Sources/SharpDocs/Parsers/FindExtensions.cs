@@ -1,25 +1,44 @@
-﻿
-
-namespace SharpDocs.Parsers
+﻿namespace SharpDocs.Parsers
 {
     using System;
     using System.Linq;
     using Entities;
     using System.Reflection;
-    using System.Text.RegularExpressions;
+
+    /// <summary>
+    /// A set of extensions for searching through parsed documentation from reflected elements.
+    /// </summary>
     public static class FindExtensions
     {
+        /// <summary>
+        /// Finds a member from its fullname.
+        /// </summary>
+        /// <param name="doc">The documentation.</param>
+        /// <param name="fullname">The fullname (i.e. : M:N.X) </param>
+        /// <returns></returns>
         private static Member Find(this Documentation doc, string fullname)
         {
             return doc.Members.FirstOrDefault((m) => m.Name == fullname);
         }
-        
+
+        /// <summary>
+        /// Finds an event documentation from the reflected info.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
         public static Member FindEvent(this Documentation doc, EventInfo info)
         {
             var fullname = $"E:{info.DeclaringType.FullName}.{info.Name}";
             return doc.Find(fullname);
         }
 
+        /// <summary>
+        /// Finds a parameter documentation from the reflected info.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
         public static Member FindParameter(this Documentation doc, ParameterInfo info)
         {
             var methodIndo = info.Member as MethodInfo;
@@ -27,6 +46,12 @@ namespace SharpDocs.Parsers
             return method?.Parameters.FirstOrDefault((p) => p.Name == info.Name);
         }
 
+        /// <summary>
+        /// Finds a type documentation from the reflected info.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static Member FindType(this Documentation doc, Type type)
         {
             var fullname = $"T:{type.FullName}";
@@ -39,6 +64,12 @@ namespace SharpDocs.Parsers
             return doc.Find(fullname);
         }
 
+        /// <summary>
+        /// Finds a constructor documentation from the reflected info.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
         public static Member FindConstructor(this Documentation doc, ConstructorInfo info)
         {
             var name = info.Name.Replace(".ctor", "#ctor");
@@ -53,6 +84,12 @@ namespace SharpDocs.Parsers
             return doc.Find(fullname);
         }
 
+        /// <summary>
+        /// Finds a method documentation from the reflected info.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
         public static Member FindMethod(this Documentation doc, MethodInfo info)
         {
             if (info == null)
@@ -77,6 +114,36 @@ namespace SharpDocs.Parsers
             return doc.Find(fullname);
         }
 
+        /// <summary>
+        /// Finds a property documentation from the reflected info.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public static Member FindProperty(this Documentation doc, PropertyInfo info)
+        {
+            var fullname = $"P:{info.DeclaringType.FullName}.{info.Name}";
+            return doc.Find(fullname);
+        }
+
+        /// <summary>
+        /// Finds a field documentation from the reflected info.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public static Member FindField(this Documentation doc, FieldInfo info)
+        {
+            var fullname = $"F:{info.DeclaringType.FullName}.{info.Name}";
+            return doc.Find(fullname);
+        }
+
+        /// <summary>
+        /// Formats all the reflected argument types for fullname.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="genericParams"></param>
+        /// <returns></returns>
         private static string FormatParameters(ParameterInfo[] info, Type[] genericParams)
         {
             return string.Join(",", info.Select((p) => {
@@ -90,6 +157,12 @@ namespace SharpDocs.Parsers
             }).ToList());
         }
 
+        /// <summary>
+        /// Formats a type name.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="genericParams"></param>
+        /// <returns></returns>
         private static string FormatTypeName(Type t, Type[] genericParams)
         {
             if (t.IsArray)
@@ -119,18 +192,6 @@ namespace SharpDocs.Parsers
             }
 
             return name;
-        }
-        
-        public static Member FindProperty(this Documentation doc, PropertyInfo info)
-        {
-            var fullname = $"P:{info.DeclaringType.FullName}.{info.Name}";
-            return doc.Find(fullname);
-        }
-
-        public static Member FindField(this Documentation doc, FieldInfo info)
-        {
-            var fullname = $"F:{info.DeclaringType.FullName}.{info.Name}";
-            return doc.Find(fullname);
         }
     }
 }

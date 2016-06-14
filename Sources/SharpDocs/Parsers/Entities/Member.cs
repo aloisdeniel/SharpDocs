@@ -23,5 +23,6 @@ namespace SharpDocs.Parsers.Entities
         public Content Example { get; internal set; }
 
         public Content Remarks { get; internal set; }
+        public IEnumerable<SeeAlso> SeeAlso { get; internal set; }
     }
 }

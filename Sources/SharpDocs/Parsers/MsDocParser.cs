@@ -7,8 +7,16 @@
     using System.Linq;
     using System.Xml;
 
+    /// <summary>
+    /// A parser for generating a documentation tree from an XML generated documentation file.
+    /// </summary>
     public class MsDocParser
     {
+        /// <summary>
+        /// Parses a text content from a xml root node.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
         private Content ParseContent(XElement element)
         {
             if(element == null)
@@ -95,6 +103,11 @@
             return result;
         }
 
+        /// <summary>
+        /// Parses the content from the xml documentation file path.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
         public Documentation Parse(string xmlDocFile)
         {
             if (File.Exists(xmlDocFile))
@@ -119,6 +132,10 @@
                         Returns = ParseContent(nMember.Element("returns")),
                         Example = ParseContent(nMember.Element("example")),
                         Remarks = ParseContent(nMember.Element("remarks")),
+                        SeeAlso = nMember.Elements("seealso")?.Select((n) => new SeeAlso()
+                        {
+                            Reference = n.Attribute("cref")?.Value,
+                        }),
                         TypeParameters = nMember.Elements("typeparam")?.Select((n) => new Parameter()
                         {
                             Name = n.Attribute("name")?.Value,

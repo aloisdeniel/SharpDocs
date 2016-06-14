@@ -5,6 +5,9 @@
     using System.IO;
     using System.Linq;
 
+    /// <summary>
+    /// An HTML document generator.
+    /// </summary>
     public class HtmlFormatter : IFormatter
     {
         private readonly string template;
@@ -156,6 +159,17 @@
                         writer.WriteSafeString("<p>");
                         Generate(writer, member.Example);
                         writer.WriteSafeString("</p>");
+                    }
+
+                    if (member.Remarks != null)
+                    {
+                        writer.WriteSafeString("<h5>See also</h5>");
+                        writer.WriteSafeString("<ul>");
+                        foreach (var p in member.SeeAlso)
+                        {
+                            writer.WriteSafeString($"<li>{p.Reference}</li>");
+                        }
+                        writer.WriteSafeString("</ul>");
                     }
                 }
 

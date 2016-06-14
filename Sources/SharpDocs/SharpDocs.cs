@@ -1,17 +1,15 @@
-﻿using HandlebarsDotNet;
-using SharpDocs.Documentation;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Xml.Linq;
-
-namespace SharpDocs
+﻿namespace SharpDocs
 {
     using Formatters;
     using Parsers;
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
+    using Documentation;
+    using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+
     public class SharpDocs
     {
         public SharpDocs() : this(new HtmlFormatter())
@@ -330,6 +328,7 @@ namespace SharpDocs
             {
                 System.Console.WriteLine("WARNING: no documentation file found, verify that you've setup the XML documentation generation in project properties.");
             }
+
             var tree = CreateTree(doc,assembly);
 
             var content = this.Formatter.Render(tree);
